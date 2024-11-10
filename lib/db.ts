@@ -1,4 +1,4 @@
-import { Pool } from 'pg';
+import { Pool, QueryResult, QueryResultRow } from 'pg';
 
 const pool = new Pool({
     user: process.env.POSTGRES_USER,
@@ -7,8 +7,10 @@ const pool = new Pool({
     password: process.env.POSTGRES_PASSWORD,
     port: Number(process.env.POSTGRES_PORT),
     ssl: {
-        rejectUnauthorized: false, // This allows self-signed certificates. For production, configure this more securely.
+        rejectUnauthorized: false,
     },
 });
 
-export const query = (text: string, params?: any[]) => pool.query(text, params);
+export const query = <T extends QueryResultRow>(text: string, params?: unknown[]): Promise<QueryResult<T>> => {
+    return pool.query<T>(text, params);
+};
