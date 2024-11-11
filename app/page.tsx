@@ -1,6 +1,10 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import styles from './HomePage.module.css'; // Import the CSS module
+import dynamic from 'next/dynamic';
+import styles from './HomePage.module.css';
+
+// Dynamically import react-select to avoid SSR issues
+const Select = dynamic(() => import('react-select'), { ssr: false });
 
 type DataType = {
     id: number | null;
@@ -20,6 +24,7 @@ type DataType = {
     period_rp: string | null;
     data_vydachi: string | null;
     data_peredachi: string | null;
+    [key: string]: string | number | null;
 };
 
 export default function HomePage() {
@@ -35,6 +40,11 @@ export default function HomePage() {
     const [dropdownOptions5, setDropdownOptions5] = useState<number[]>([]);
     const [data, setData] = useState<DataType[]>([]);
     const [error, setError] = useState<string | null>(null);
+    const [isClient, setIsClient] = useState(false);
+
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
 
     useEffect(() => {
         const fetchDropdownOptions = async () => {
@@ -58,15 +68,11 @@ export default function HomePage() {
         fetchDropdownOptions();
     }, []);
 
-    const handleDropdownChange = <T extends string | number>(
+    const handleSelectChange = <T extends string | number>(
         setter: React.Dispatch<React.SetStateAction<T[]>>,
-        selectedOptions: HTMLSelectElement,
-        type: 'string' | 'number'
+        selectedOptions: Array<{ value: T; label: string }>
     ) => {
-        const values = Array.from(selectedOptions.selectedOptions, (option) => {
-            return type === 'number' ? (parseFloat(option.value) as T) : (option.value as T);
-        });
-        setter(values);
+        setter(selectedOptions.map((option) => option.value));
     };
 
     const handleFetchData = async () => {
@@ -87,69 +93,94 @@ export default function HomePage() {
             setData(result);
             setError(null);
         } catch (error) {
-            console.error('Error fetching data:', error);
+            if (error instanceof Error) {
+                console.error('Error fetching data:', error.message);
+            } else {
+                console.error('Error fetching data:', error);
+            }
             setError('There was an error fetching the data. Please try again later.');
         }
     };
+
+    const headers = data.length > 0 ? Object.keys(data[0]) : [];
 
     return (
         <div className={styles.container}>
             <h1 className={styles.title}>Data from PostgreSQL</h1>
             {error && <p className={styles.error}>{error}</p>}
-            <div>
-                <select
-                    multiple
-                    className={styles.dropdown}
-                    onChange={(e) => handleDropdownChange<string>(setInputBaza, e.target, 'string')}
-                >
-                    {dropdownOptions1.map((option) => (
-                        <option key={option} value={option}>{option}</option>
+            {isClient && (
+                <div>
+                    <label className={styles.label}>Baza</label>
+                    <Select
+                        isMulti
+                        options={dropdownOptions1.map((option) => ({
+                            value: option,
+                            label: option || '',
+                        }))}
+                        onChange={(selected) => handleSelectChange<string>(setInputBaza, selected as Array<{ value: string; label: string }>)}
+                    />
+                    <label className={styles.label}>Kod</label>
+                    <Select
+                        isMulti
+                        options={dropdownOptions2.map((option) => ({
+                            value: option,
+                            label: option != null ? option.toString() : '',
+                        }))}
+                        onChange={(selected) => handleSelectChange<number>(setInputKod, selected as Array<{ value: number; label: string }>)}
+                    />
+                    <label className={styles.label}>Period</label>
+                    <Select
+                        isMulti
+                        options={dropdownOptions3.map((option) => ({
+                            value: option,
+                            label: option || '',
+                        }))}
+                        onChange={(selected) => handleSelectChange<string>(setInputPeriod, selected as Array<{ value: string; label: string }>)}
+                    />
+                    <label className={styles.label}>Period Rp</label>
+                    <Select
+                        isMulti
+                        options={dropdownOptions4.map((option) => ({
+                            value: option,
+                            label: option || '',
+                        }))}
+                        onChange={(selected) => handleSelectChange<string>(setInputPeriodRp, selected as Array<{ value: string; label: string }>)}
+                    />
+                    <label className={styles.label}>Age</label>
+                    <Select
+                        isMulti
+                        options={dropdownOptions5.map((option) => ({
+                            value: option,
+                            label: option != null ? option.toString() : '',
+                        }))}
+                        onChange={(selected) => handleSelectChange<number>(setInputAge, selected as Array<{ value: number; label: string }>)}
+                    />
+                </div>
+            )}
+            <button className={styles.button} onClick={handleFetchData}>Fetch Data</button>
+            {/* Dynamic table */}
+            {data.length > 0 && (
+                <table className={styles.table}>
+                    <thead>
+                    <tr>
+                        {headers.map((header) => (
+                            <th key={header}>{header}</th>
+                        ))}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {data.map((row, index) => (
+                        <tr key={index}>
+                            {headers.map((header) => (
+                                <td key={header}>
+                                    {row[header] != null ? row[header] : 'N/A'}
+                                </td>
+                            ))}
+                        </tr>
                     ))}
-                </select>
-                <select
-                    multiple
-                    className={styles.dropdown}
-                    onChange={(e) => handleDropdownChange<number>(setInputKod, e.target, 'number')}
-                >
-                    {dropdownOptions2.map((option) => (
-                        <option key={option} value={option}>{option}</option>
-                    ))}
-                </select>
-                <select
-                    multiple
-                    className={styles.dropdown}
-                    onChange={(e) => handleDropdownChange<string>(setInputPeriod, e.target, 'string')}
-                >
-                    {dropdownOptions3.map((option) => (
-                        <option key={option} value={option}>{option}</option>
-                    ))}
-                </select>
-                <select
-                    multiple
-                    className={styles.dropdown}
-                    onChange={(e) => handleDropdownChange<string>(setInputPeriodRp, e.target, 'string')}
-                >
-                    {dropdownOptions4.map((option) => (
-                        <option key={option} value={option}>{option}</option>
-                    ))}
-                </select>
-                <select
-                    multiple
-                    className={styles.dropdown}
-                    onChange={(e) => handleDropdownChange<number>(setInputAge, e.target, 'number')}
-                >
-                    {dropdownOptions5.map((option) => (
-                        <option key={option} value={option}>{option}</option>
-                    ))}
-                </select>
-
-                <button className={styles.button} onClick={handleFetchData}>Fetch Data</button>
-            </div>
-            <ul className={styles.dataList}>
-                {data.map((item: DataType, index: number) => (
-                    <li key={index} className={styles.dataListItem}>{JSON.stringify(item)}</li>
-                ))}
-            </ul>
+                    </tbody>
+                </table>
+            )}
         </div>
     );
 }

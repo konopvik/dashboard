@@ -4,6 +4,7 @@
     border: 1px solid #ccc;
     border-radius: 8px;
     background-color: #f9f9f9;
+    min-height: 1000px;
 }
 
 .title {
@@ -46,5 +47,40 @@
 .dataListItem {
     padding: 8px;
     border-bottom: 1px solid #ddd;
+}
+
+.dropdown {
+    margin-bottom: 10px;
+    padding: 5px;
+    width: 200px;
+    height: 120px; /* Increased height for easier multi-selection */
+}
+
+.label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.table th,
+.table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+.table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+}
+
+.table td {
+    background-color: #fff;
 }
 
