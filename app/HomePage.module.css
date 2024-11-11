@@ -1,0 +1,50 @@
+.container {
+    margin: 20px;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+.title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.error {
+    color: red;
+}
+
+.dropdown {
+    margin-bottom: 10px;
+    padding: 5px;
+    width: 200px;
+    height: 100px; /* Increase the height for better multi-select experience */
+}
+
+.button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.button:hover {
+    background-color: #0056b3;
+}
+
+.dataList {
+    margin-top: 20px;
+    list-style-type: none;
+    padding: 0;
+}
+
+.dataListItem {
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
+}
+
