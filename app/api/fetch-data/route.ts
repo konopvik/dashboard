@@ -19,7 +19,7 @@ export async function POST(request: Request) {
 
         inputs.forEach((input) => {
             if (input.values.length > 0) {
-                const placeholders = input.values.map((_, i) => `$${queryParams.length + i + 1}`).join(' OR ');
+                const placeholders = input.values.map((_: string | number, i: number) => `$${queryParams.length + i + 1}`).join(' OR ');
                 conditions.push(`(${input.column} = ${placeholders.split(' OR ').join(` OR ${input.column} = `)})`);
                 queryParams.push(...input.values);
             }
