@@ -1,7 +1,9 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
+import { useRouter } from 'next/navigation';
 import styles from './HomePage.module.css';
+import withAuth from '@/utils/withAuth';
 
 // Dynamically import react-select to avoid SSR issues
 const Select = dynamic(() => import('react-select'), { ssr: false });
@@ -27,7 +29,7 @@ type DataType = {
     [key: string]: string | number | null;
 };
 
-export default function HomePage() {
+function HomePage() {
     const [inputBaza, setInputBaza] = useState<string[]>([]);
     const [inputKod, setInputKod] = useState<number[]>([]);
     const [inputPeriod, setInputPeriod] = useState<string[]>([]);
@@ -41,6 +43,7 @@ export default function HomePage() {
     const [data, setData] = useState<DataType[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [isClient, setIsClient] = useState(false);
+    const router = useRouter();
 
     useEffect(() => {
         setIsClient(true);
@@ -104,8 +107,19 @@ export default function HomePage() {
 
     const headers = data.length > 0 ? Object.keys(data[0]) : [];
 
+    // Logout function
+    const handleLogout = () => {
+        localStorage.removeItem('token'); // Remove the token from localStorage
+        router.push('/login'); // Redirect to the login page
+    };
+
     return (
         <div className={styles.container}>
+            {/* Logout Button */}
+            <button onClick={handleLogout} className={styles.logoutButton}>
+                Logout
+            </button>
+
             <h1 className={styles.title}>Data from PostgreSQL</h1>
             {error && <p className={styles.error}>{error}</p>}
             {isClient && (
@@ -184,3 +198,5 @@ export default function HomePage() {
         </div>
     );
 }
+
+export default withAuth(HomePage);
