@@ -17,6 +17,7 @@
     "react-select": "^5.8.3"
   },
   "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^20",
     "@types/pg": "^8.11.10",
     "@types/react": "^18",
